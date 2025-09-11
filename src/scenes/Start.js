@@ -81,7 +81,7 @@ export class Start extends Phaser.Scene {
 
 
         //Inserir texto na caixa de Diálogo
-        this.dialogueBox.setText(['Então é você quem ousou vir até aqui me desafiar?', 'Patético', 'Prepare-se para sucumbir'], 0);
+        this.dialogueBox.setarDialogo(['Então é você quem ousou vir até aqui me desafiar?', 'Patético', 'Prepare-se para sucumbir'], 0);
 
 
         //Adicionar o Botão para o Menu
@@ -196,7 +196,7 @@ export class Start extends Phaser.Scene {
             this.inimigoAtual.removeInteractive();
             this.inimigoAtual.hp = 0;
             this.inimigoAtual.pararMoveAroundTheScreen();
-            this.dialogueBox.setText(['NÃO! Como isso é possível!?', 'Como pude ser derrotado?', '...', '...Ha...', 'Hahaha...', 'HAHAHA! VOCÊ ACHOU MESMO QUE PODERIA ME DERROTAR!?', 'É só uma demo cara, até a próxima! :3'], 0);
+            this.dialogueBox.setarDialogo(['NÃO! Como isso é possível!?', 'Como pude ser derrotado?', '...', '...Ha...', 'Hahaha...', 'HAHAHA! VOCÊ ACHOU MESMO QUE PODERIA ME DERROTAR!?', 'É só uma demo cara, até a próxima! :3'], 0);
         }
         this.tweens.add({
             targets: this.inimigoAtual,
