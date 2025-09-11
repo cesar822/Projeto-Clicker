@@ -5,11 +5,11 @@ export class TelaInicial extends Phaser.Scene {
     }    
 
     preload() {
-        this.load.image('background', 'assets/background_menu.png');
+        this.load.image('backgroundTelaInicial', 'assets/background_menu.png');
     }
 
     create() {
-        this.add.image(640, 360, 'background');
+        this.add.image(640, 360, 'backgroundTelaInicial');
         this.containerModoHistoria = this.add.container(600, 500);
         const TAMANHO_BOTAO = {
             x: 300,
