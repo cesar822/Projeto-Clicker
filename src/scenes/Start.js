@@ -1,4 +1,5 @@
 import Player from './Player.js';
+import Enemy from './enemys/Enemy.js'
 import Knight from './enemys/Knight.js';
 import DialogueBox from './DialogueBox.js';
 import Sword from './weapons/Sword.js';
@@ -10,6 +11,7 @@ export class Start extends Phaser.Scene {
     }
 
     preload() {
+        this.load.image('silver', 'assets/silver.jpg');
         this.load.image('knight', 'assets/spr_roaring_knight.png');
         this.load.image('background', 'assets/background.png');
         this.load.image('menu', 'assets/botao_menu.png');
@@ -23,39 +25,8 @@ export class Start extends Phaser.Scene {
         this.add.image(640, 360, 'background');
         this.fecharMenu();
 
-        //Adicionar Barra de HP inimigo
-        this.enemysHpBar = this.add.graphics();
-        this.enemysHpBarText = this.add.text(565, 153, '', {
-            fontSize: '16px',
-            color: '0x13b0f9'
-        });
-        this.danoCausado = this.add.text(700, 180, '', {
-            fontSize: '32px',
-            fill: '#FFF'
-        });
-        this.enemysContainer = this.add.container();
-
-        //Adicionar o inimigo
-        this.listaInimigos = [
-            new Knight(this, 640, 360, 'knight', 1000, 10, this.enemysContainer)
-        ]
-        this.idxInimigoAtual = 0;
-        this.inimigoAtual = this.listaInimigos[0];
-        this.inimigoAtual.setScale(0.5);
-
-        this.enemysContainer.add([this.enemysHpBar, this.enemysHpBarText, this.inimigoAtual, this.danoCausado]);
-        this.add.existing(this.enemysContainer);
-
-
-        //Adicionar Caixas de Dialogo
-        this.dialogueBox = new DialogueBox(this);
-        this.dialogueBox.setDepth(3);
-
-
-        this.blocoTransicao = this.add.rectangle(0, 0, 1280, 0, '0xffffff').setOrigin(0, 0);
-
         //Adicionar Barra de HP do Player
-        this.player = new Player(200, new Sword(this, 0, 0, 'espada1', 'espada1', 10));
+        this.player = new Player(200, new Sword(this, 0, 0, 'espada1', 'espada1', 300));
         this.hpBar = this.add.graphics();
         this.hpBarInfo = {
             x: 900,
@@ -72,12 +43,35 @@ export class Start extends Phaser.Scene {
         this.hpContainer.add([this.hpBar, this.hpBarText]);
         this.add.existing(this.hpContainer); 
 
-
-        //Atacar o inimigo
-        this.danoTotal = 0;
-        this.inimigoAtual.on('pointerdown', () => {
-            this.atacarInimigo();
+        //Adicionar Barra de HP inimigo
+        this.enemysHpBar = this.add.graphics();
+        this.enemysHpBarText = this.add.text(565, 153, '', {
+            fontSize: '16px',
+            color: '0x13b0f9'
         });
+        this.danoCausado = this.add.text(700, 180, '', {
+            fontSize: '32px',
+            fill: '#FFF'
+        });
+        this.enemysContainer = this.add.container();
+
+        //Adicionar o inimigo
+        this.listaInimigos = [
+            new Enemy(this, 640, 360, 'silver', 1000, 1, this.player),
+            new Knight(this, 640, 360, 'knight', 1000, 1, this.enemysContainer, this.player)
+        ]
+        this.idxInimigoAtual = 0;
+        this.adicionarInimigo();
+
+        this.enemysContainer.add([this.enemysHpBar, this.enemysHpBarText, this.inimigoAtual, this.danoCausado]);
+        this.add.existing(this.enemysContainer);
+
+        //Adicionar Caixas de Dialogo
+        this.dialogueBox = new DialogueBox(this);
+        this.dialogueBox.setDepth(3);
+
+
+        this.blocoTransicao = this.add.rectangle(0, 0, 1280, 0, '0xffffff').setOrigin(0, 0);
 
 
         //Inserir texto na caixa de Diálogo
@@ -104,7 +98,22 @@ export class Start extends Phaser.Scene {
         if(this.podeRodar()) {
             this.inimigoAtual.setInteractive({cursor: 'pointer'});
             this.atacarPlayer();
-            this.inimigoAtual.iniciarMoveAroundTheScreen();
+            this.inimigoAtual.iniciarMovimentos();
+        }
+        if(this.player.hp == 0) {
+            let overlay = this.add.rectangle(0, 0, 1280, 720, 0xff0000);
+            overlay.setOrigin(0,0);
+            overlay.setAlpha(0);
+            this.tweens.add({
+                targets: overlay,
+                alpha: 0.6,
+                duration: 1000,
+                ease: 'Linear',
+                onComplete: () => {
+                    this.scene.start('GameOver');
+                }
+            });
+            
         }
     }
     
@@ -182,7 +191,7 @@ export class Start extends Phaser.Scene {
         if(this.dialogueBox.isOpen) {
             return false;
         }
-        if(this.inimigoAtual.hp <= 0)
+        if(this.inimigoAtual.hp == 0)
             return false;
         return true;
     }
@@ -190,13 +199,18 @@ export class Start extends Phaser.Scene {
     atacarInimigo() {
         let dano = this.player.attack();
         this.danoTotal+=dano;
-        this.inimigoAtual.hp-=dano;
+        this.inimigoAtual.hp = Math.max(this.inimigoAtual.hp - dano, 0);
         this.mostrarDanoCausado();
-        if(this.inimigoAtual.hp <= 0) {
+        if(this.inimigoAtual.hp == 0) {
             this.inimigoAtual.removeInteractive();
-            this.inimigoAtual.hp = 0;
-            this.inimigoAtual.pararMoveAroundTheScreen();
-            this.dialogueBox.setarDialogo(['NÃO! Como isso é possível!?', 'Como pude ser derrotado?', '...', '...Ha...', 'Hahaha...', 'HAHAHA! VOCÊ ACHOU MESMO QUE PODERIA ME DERROTAR!?', 'É só uma demo cara, até a próxima! :3'], 0);
+            this.inimigoAtual.pararMovimentos();
+            if(this.idxInimigoAtual < this.listaInimigos.length) {
+                this.inimigoAtual.destroy();
+                this.adicionarInimigo();
+            }
+            else {
+                this.dialogueBox.setarDialogo(['NÃO! Como isso é possível!?', 'Como pude ser derrotado?', '...', '...Ha...', 'Hahaha...', 'HAHAHA! VOCÊ ACHOU MESMO QUE PODERIA ME DERROTAR!?', 'É só uma demo cara, até a próxima! :3'], 0);
+            }
         }
         this.tweens.add({
             targets: this.inimigoAtual,
@@ -246,7 +260,7 @@ export class Start extends Phaser.Scene {
     }
 
     atacarPlayer() {
-        if(this.timerAtacarPlayer || this.player.hp <= 0 || this.inimigoAtual.hp <= 0) {
+        if(this.timerAtacarPlayer || this.player.hp == 0 || this.inimigoAtual.hp == 0) {
             return;
         }
 
@@ -254,13 +268,10 @@ export class Start extends Phaser.Scene {
             delay: 2000,
             callback: () => {
                 if(this.inimigoAtual.hp > 0 && this.player.hp > 0) {
-                    this.player.hp -= this.inimigoAtual.attack();
+                    this.inimigoAtual.attack();
                     this.cameras.main.shake(100, 0.02);
                 }
                 else {
-                    if(this.player.hp <= 0) {
-                        this.player.hp = 0;
-                    }
                     this.pararAtacarPlayer();
                 }
             },
@@ -273,5 +284,16 @@ export class Start extends Phaser.Scene {
             this.timerAtacarPlayer.paused = true;
             this.timerAtacarPlayer = null;
         }
+    }
+
+    adicionarInimigo() {
+        this.inimigoAtual = this.listaInimigos[this.idxInimigoAtual];
+        this.inimigoAtual.setScale(0.5);
+        this.enemysContainer.add(this.inimigoAtual)
+        this.idxInimigoAtual++;
+        this.danoTotal = 0;
+        this.inimigoAtual.on('pointerdown', () => {
+            this.atacarInimigo();
+        });
     }
 }

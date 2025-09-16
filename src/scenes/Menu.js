@@ -44,10 +44,10 @@ export class Menu extends Phaser.Scene {
 
         this.listaArmas = [
             new Sword(this, 0, 0, 'espada1', 'espada Meme', 10),
-            new Sword(this, 0, 0, 'varinhaMagica', 'espada Meme', 10),
-            new Sword(this, 0, 0, 'shuriken', 'espada Meme', 10),
-            new Sword(this, 0, 0, 'tesoura', 'espada Meme', 10),
-            new Sword(this, 0, 0, 'aegislash', 'espada Meme', 10),
+            new Sword(this, 0, 0, 'varinhaMagica', 'espada Meme', 15),
+            new Sword(this, 0, 0, 'shuriken', 'espada Meme', 20),
+            new Sword(this, 0, 0, 'tesoura', 'espada Meme', 30),
+            new Sword(this, 0, 0, 'aegislash', 'espada Meme', 40),
             new Sword(this, 0, 0, 'tenna', 'Tenna, fds', -10)
         ]
 
