@@ -1,16 +1,14 @@
 import Enemy from './Enemy.js';
 
 export default class Knight extends Enemy {
-    constructor(scene, x, y, texture, maxHp, damage, container) {
-        super(scene, x, y, texture, maxHp, damage);
+    constructor(scene, x, y, texture, maxHp, damage, container, player) {
+        super(scene, x, y, texture, maxHp, damage, player);
 
-        this.container = container;
         this.scene = scene;
+        this.container = container;
         this.movimentoAtivado = false;
 
-        scene.add.existing(this);
-
-        this.flutuar = scene.tweens.add({
+        this.flutuar = this.scene.tweens.add({
             targets: this.container,
             y: 40,
             duration: 1500,
@@ -20,6 +18,14 @@ export default class Knight extends Enemy {
         });
     }
 
+    iniciarMovimentos() {
+        this.iniciarMoveAroundTheScreen();
+    }
+
+    pararMovimentos() {
+        this.pararMoveAroundTheScreen();
+    }
+
     iniciarMoveAroundTheScreen() {
         if (!this.movimentoAtivado) {
             this.movimentoAtivado = true;
@@ -27,7 +33,7 @@ export default class Knight extends Enemy {
             this.timerMover = this.scene.time.addEvent({
                 delay: 1000,
                 callback: () => {
-                    if (!this.isMoving && Math.random() < 0.2) {
+                    if (!this.isMoving && Math.random() < 1) {
                         this.isMoving = true;
                         let x = Math.random();
                         if(x < 0.5)
