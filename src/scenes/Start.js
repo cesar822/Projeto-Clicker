@@ -26,7 +26,7 @@ export class Start extends Phaser.Scene {
         this.fecharMenu();
 
         //Adicionar Barra de HP do Player
-        this.player = new Player(200, new Sword(this, 0, 0, 'espada1', 'espada1', 300));
+        this.player = new Player(200, new Sword(this, 0, 0, 'espada1', 'espada1', 10));
         this.hpBar = this.add.graphics();
         this.hpBarInfo = {
             x: 900,
@@ -57,8 +57,8 @@ export class Start extends Phaser.Scene {
 
         //Adicionar o inimigo
         this.listaInimigos = [
-            new Enemy(this, 640, 360, 'silver', 1000, 1, this.player),
-            new Knight(this, 640, 360, 'knight', 1000, 1, this.enemysContainer, this.player)
+            new Enemy(this, 640, 360, 'silver', 1000, 10, this.player),
+            new Knight(this, 640, 360, 'knight', 1000, 10, this.enemysContainer, this.player)
         ]
         this.idxInimigoAtual = 0;
         this.adicionarInimigo();
